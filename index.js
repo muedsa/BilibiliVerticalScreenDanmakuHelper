@@ -4,9 +4,12 @@
 // @namespace    https://www.muedsa.com
 // @description  为竖屏适配全屏视频时的弹幕
 // @author       MUEDSA
+// @license      MIT
 // @match        https://www.bilibili.com/video/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=bilibili.com
 // @grant        none
+// @downloadURL https://raw.githubusercontent.com/muedsa/BilibiliVerticalScreenDanmakuHelper/main/index.js
+// @updateURL https://raw.githubusercontent.com/muedsa/BilibiliVerticalScreenDanmakuHelper/main/index.js
 // ==/UserScript==
 
 (function() {
