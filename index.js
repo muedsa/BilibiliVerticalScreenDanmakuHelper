@@ -44,8 +44,7 @@
 
     function resetDanmakuArea() {
         const dmWrapEl = document.querySelector('.bpx-player-row-dm-wrap');
-        const videoAreaEl = document.querySelector('.bpx-player-video-area');
-        if(dmWrapEl && videoAreaEl) {
+        if(dmWrapEl) {
             dmWrapEl.style.top = '';
             dmWrapEl.style.height = '';
         }
