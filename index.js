@@ -6,6 +6,7 @@
 // @author       MUEDSA
 // @license      MIT
 // @match        https://www.bilibili.com/video/*
+// @match        https://live.bilibili.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=bilibili.com
 // @grant        none
 // @downloadURL https://raw.githubusercontent.com/muedsa/BilibiliVerticalScreenDanmakuHelper/main/index.js
@@ -15,6 +16,7 @@
 (function() {
     'use strict';
     const logName = '[BilibiliVerticalScreenDanmakuHelper]';
+    const isLivePage = window.location.href.indexOf('https://live.bilibili.com') >= 0;
     function logInfo(...args) {
         console.log(logName, ...args);
     }
@@ -26,7 +28,13 @@
     }
 
     function fitDanmakuArea() {
-        const dmWrapEl = document.querySelector('.bpx-player-row-dm-wrap');
+        let dmWrapEl;
+        logInfo('isLivePage', isLivePage);
+        if (isLivePage) {
+            dmWrapEl = document.querySelector('.web-player-danmaku');
+        } else {
+            dmWrapEl = document.querySelector('.bpx-player-row-dm-wrap');
+        }
         if(dmWrapEl) {
             const areaWidth = dmWrapEl.clientWidth;
             const areaHeight = dmWrapEl.clientHeight;
@@ -43,10 +51,16 @@
         } else {
             logWarn('not found danmaku warp element');
         }
+
     }
 
     function resetDanmakuArea() {
-        const dmWrapEl = document.querySelector('.bpx-player-row-dm-wrap');
+        let dmWrapEl;
+        if (isLivePage) {
+            dmWrapEl = document.querySelector('.web-player-danmaku');
+        } else {
+            dmWrapEl = document.querySelector('.bpx-player-row-dm-wrap');
+        }
         if(dmWrapEl) {
             dmWrapEl.style.top = '';
             dmWrapEl.style.height = '';
@@ -56,7 +70,8 @@
     document.addEventListener('fullscreenchange', (event) => {
         const targetEl = event.target
         if(document.fullscreenElement && document.fullscreenElement === targetEl) {
-            if(targetEl.classList.contains('bpx-player-container')) {
+            console.log('fullscreenElement', targetEl);
+            if(targetEl.classList.contains('bpx-player-container') || targetEl.id === 'live-player') {
                 fitDanmakuArea();
             } else {
                 resetDanmakuArea();
