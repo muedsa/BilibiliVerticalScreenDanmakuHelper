@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         BilibiliVerticalScreenDanmakuHelper
-// @version      0.0.1
-// @namespace    https://www.muedsa.com
+// @version      0.0.2
+// @namespace    https://github.com/muedsa/BilibiliVerticalScreenDanmakuHelper
 // @description  为竖屏适配全屏视频时的弹幕
 // @author       MUEDSA
 // @license      MIT
-// @match        https://www.bilibili.com/video/*
-// @match        https://live.bilibili.com/*
+// @match        *://www.bilibili.com/video/*
+// @match        *://live.bilibili.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=bilibili.com
 // @grant        none
 // @downloadURL https://raw.githubusercontent.com/muedsa/BilibiliVerticalScreenDanmakuHelper/main/index.js
@@ -17,65 +17,85 @@
     'use strict';
     const logName = '[BilibiliVerticalScreenDanmakuHelper]';
     const isLivePage = window.location.href.indexOf('https://live.bilibili.com') >= 0;
+    const playerContainerClass = 'bpx-player-container';
+    const danmakuContainerClass = 'bpx-player-row-dm-wrap';
+    const livePlayerContainerClass = 'live-player-mounter';
+    const liveDanmakuContainerClass = 'web-player-danmaku';
+
     function logInfo(...args) {
         console.log(logName, ...args);
     }
+
     function logWarn(...args) {
         console.warn(logName, ...args);
     }
+
     function logError(...args) {
         console.error(logName, ...args);
     }
 
-    function fitDanmakuArea() {
-        let dmWrapEl;
-        logInfo('isLivePage', isLivePage);
+    function isFullscreenElementPlayerElement(element) {
+        return element
+        && (element.classList.contains(playerContainerClass)
+            || element.classList.contains(livePlayerContainerClass));
+    }
+
+    function getPlayerEl() {
         if (isLivePage) {
-            dmWrapEl = document.querySelector('.web-player-danmaku');
+            return document.querySelector(`.${livePlayerContainerClass}`);
         } else {
-            dmWrapEl = document.querySelector('.bpx-player-row-dm-wrap');
+            return document.querySelector(`.${playerContainerClass}`);
         }
-        if(dmWrapEl) {
-            const areaWidth = dmWrapEl.clientWidth;
-            const areaHeight = dmWrapEl.clientHeight;
-            const isVertical = areaHeight > areaWidth;
-            const videoAspectRatio = (window?.__INITIAL_STATE__?.videoData?.dimension?.width || 16) / (window?.__INITIAL_STATE__?.videoData?.dimension?.height || 9);
-            if (isVertical) {
-                logInfo('fullscreen player is vertical');
-                const danmakuAreaHeight = areaWidth / videoAspectRatio;
-                if(danmakuAreaHeight < areaHeight) {
-                    dmWrapEl.style.top = ((areaHeight - danmakuAreaHeight) / 2).toFixed(0) + 'px';
-                    dmWrapEl.style.height = danmakuAreaHeight.toFixed(0) + 'px';
+    }
+
+    function fitDanmakuContainer() {
+        const fullscreenPlayerEl = document.fullscreenElement;
+        if (isFullscreenElementPlayerElement(fullscreenPlayerEl)) {
+            let danmakuContainerEl;
+            if (isLivePage) {
+                danmakuContainerEl = fullscreenPlayerEl.querySelector(`.${liveDanmakuContainerClass}`);
+            } else {
+                danmakuContainerEl = fullscreenPlayerEl.querySelector(`.${danmakuContainerClass}`);
+            }
+            if (fullscreenPlayerEl && danmakuContainerEl) {
+                const playerWidth = fullscreenPlayerEl.clientWidth;
+                const playerHeight = fullscreenPlayerEl.clientHeight;
+                const isVertical = playerHeight > playerWidth;
+                if (isVertical) {
+                    const videoHeight = playerWidth / 16 * 9;
+                    const styleTop = ((playerHeight - videoHeight) / 2).toFixed(0);
+                    danmakuContainerEl.style.top = `${styleTop}px`;
+                    const styleHeight = (playerHeight - styleTop).toFixed(0);
+                    danmakuContainerEl.style.height = `${styleHeight}px`;
+                    logInfo(`弹幕区域调整 top: ${styleTop}px, height:${styleHeight}px`);
+                } else {
+                    logInfo('当前视频为横屏，弹幕区域不进行调整');
                 }
             }
-        } else {
-            logWarn('not found danmaku warp element');
         }
-
     }
 
     function resetDanmakuArea() {
-        let dmWrapEl;
+        let danmakuContainerEl;
         if (isLivePage) {
-            dmWrapEl = document.querySelector('.web-player-danmaku');
+            danmakuContainerEl = document.querySelector(`.${livePlayerContainerClass} .${liveDanmakuContainerClass}`);
         } else {
-            dmWrapEl = document.querySelector('.bpx-player-row-dm-wrap');
+            danmakuContainerEl = document.querySelector(`.${playerContainerClass} .${danmakuContainerClass}`);
         }
-        if(dmWrapEl) {
-            dmWrapEl.style.top = '';
-            dmWrapEl.style.height = '';
+        if(danmakuContainerEl) {
+            danmakuContainerEl.style.top = '';
+            danmakuContainerEl.style.height = '';
+            logInfo('弹幕区域重置');
         }
     }
 
-    document.addEventListener('fullscreenchange', (event) => {
-        const targetEl = event.target
-        if(document.fullscreenElement && document.fullscreenElement === targetEl) {
-            console.log('fullscreenElement', targetEl);
-            if(targetEl.classList.contains('bpx-player-container') || targetEl.id === 'live-player') {
-                fitDanmakuArea();
-            } else {
-                resetDanmakuArea();
-            }
+    document.addEventListener('fullscreenchange', () => {
+        if (document.fullscreenElement) {
+            fitDanmakuContainer();
+        } else {
+            resetDanmakuArea();
         }
     });
+
+    logInfo("初始化!");
 })();
