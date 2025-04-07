@@ -1,11 +1,12 @@
 // ==UserScript==
 // @name         BilibiliVerticalScreenDanmakuHelper
-// @version      0.0.2
+// @version      0.0.3
 // @namespace    https://github.com/muedsa/BilibiliVerticalScreenDanmakuHelper
 // @description  为竖屏适配全屏视频时的弹幕
 // @author       MUEDSA
 // @license      MIT
 // @match        *://www.bilibili.com/video/*
+// @match        *://www.bilibili.com/list/watchlater/*
 // @match        *://live.bilibili.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=bilibili.com
 // @grant        none
